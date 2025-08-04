@@ -2,10 +2,10 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8" />
-  <title>Dify Workflow 调用测试</title>
+  <title>Dify Workflow 接入演示</title>
 </head>
 <body>
-  <h2>请输入内容：</h2>
+  <h2>请输入内容让 AI 分析：</h2>
   <input type="text" id="userInput" style="width: 300px;" />
   <button onclick="callDify()">提交</button>
 
@@ -15,37 +15,33 @@
   <script>
     async function callDify() {
       const inputText = document.getElementById('userInput').value;
-      const apiKey = "app-9xerNfbVnPtYtG4jajZF3ZHL";
-      const endpoint = "https://api.dify.ai/v1/workflows/wl_BKtK6kYgG5nw6I0N/run";
+      const apiKey = "app-9xerNfbVnPtYtG4jajZF3ZHL";  // ✅ 替换为你的 API Key
+      const workflowEndpoint = "https://api.dify.ai/v1/workflows/wl_BKtK6kYgG5nw6I0N/run";  // ✅ 使用正确的 workflow ID
 
       const responseBox = document.getElementById('responseBox');
-      responseBox.innerText = "请求中...";
+      responseBox.innerText = "正在请求，请稍等...";
 
-      try {
-        const res = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${apiKey}`,
-            "Content-Type": "application/json"
+      const res = await fetch(workflowEndpoint, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          inputs: {
+            user_input: inputText
           },
-          body: JSON.stringify({
-            inputs: {
-              user_input: inputText
-            },
-            response_mode: "blocking"
-          })
-        });
+          response_mode: "blocking"
+        })
+      });
 
-        const data = await res.json();
-        console.log("返回数据：", data);
+      const data = await res.json();
+      console.log("返回数据：", data);  // ✅ 便于调试
 
-        if (data.outputs && data.outputs.reply) {
-          responseBox.innerText = data.outputs.reply;
-        } else {
-          responseBox.innerText = "⚠️ 未获取到回复内容。\n完整返回内容：\n" + JSON.stringify(data, null, 2);
-        }
-      } catch (error) {
-        responseBox.innerText = "❌ 请求失败：" + error.message;
+      if (data.outputs && data.outputs.reply) {
+        responseBox.innerText = data.outputs.reply;
+      } else {
+        responseBox.innerText = "❌ 出错：" + JSON.stringify(data);
       }
     }
   </script>
